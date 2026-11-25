@@ -1,0 +1,3 @@
+import {env} from 'cloudflare:workers';
+export async function list(owner:string,kind?:string){const q=kind?env.DB!.prepare('SELECT * FROM records WHERE owner=? AND kind=? ORDER BY updated DESC').bind(owner,kind):env.DB!.prepare('SELECT * FROM records WHERE owner=? ORDER BY updated DESC').bind(owner);const r=await q.all();return r.results.map((r:any)=>({...r,body:JSON.parse(r.body)}));}
+export async function put(owner:string,id:string,kind:string,body:any){await env.DB!.prepare('INSERT INTO records(id,owner,kind,body,updated) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET body=excluded.body,updated=excluded.updated WHERE records.owner=excluded.owner').bind(owner+':'+id,owner,kind,JSON.stringify(body),new Date().toISOString()).run();}
