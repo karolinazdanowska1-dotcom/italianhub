@@ -21,6 +21,9 @@ function App() {
   const [local,setLocal]=useState(false);
   const [ready,setReady]=useState(false);
   const [message,setMessage]=useState('');
+  const [passwordSetup,setPasswordSetup]=useState(false);
+  const [passwordMessage,setPasswordMessage]=useState('');
+  const [savingPassword,setSavingPassword]=useState(false);
   useEffect(()=>{
     if(!client) return;
     const {data}=client.auth.onAuthStateChange((_event,session)=>setSession(session));
@@ -35,11 +38,37 @@ function App() {
   },[local,client,userId]);
   if(ready && (local||userId)) return <>
     <div style={{position:'fixed',bottom:12,right:16,zIndex:19}}>
+      {!local&&<button className="secondary" onClick={()=>{setPasswordMessage('');setPasswordSetup(!passwordSetup);}}>Nastavit heslo</button>}
       <button className="secondary" onClick={()=>{if(local){setReady(false);setLocal(false);}else void client?.auth.signOut();}}>
         {local?'Připojit cloudové ukládání':'Odhlásit se ze Supabase'}
       </button>
     </div>
     <Lab cloud={!local}/>
+    {!local&&passwordSetup&&<div className="modalBackdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="Nastavit heslo">
+      <h2>Nastavit heslo k ITALIAN LAB</h2>
+      <p>Pro příští přihlášení použij svůj e-mail a toto heslo. Zvol alespoň 12 znaků.</p>
+      <form onSubmit={async event=>{
+        event.preventDefault();
+        const form=event.currentTarget;
+        const fields=new FormData(form);
+        const password=String(fields.get('newPassword'));
+        if(password!==fields.get('confirmPassword')){setPasswordMessage('Hesla se neshodují.');return;}
+        setSavingPassword(true);
+        try {
+          const {error}=await client!.auth.updateUser({password});
+          if(error){setPasswordMessage('Heslo se nepodařilo uložit. '+error.message);return;}
+          form.reset();
+          setPasswordMessage('Heslo je nastavené. Příště se přihlas e-mailem a tímto heslem.');
+        } catch {setPasswordMessage('Heslo se nepodařilo uložit. Zkontroluj připojení.');}
+        finally {setSavingPassword(false);}
+      }}>
+        <label>Nové heslo<input className="answerInput" name="newPassword" type="password" autoComplete="new-password" minLength={12} required /></label>
+        <label>Heslo znovu<input className="answerInput" name="confirmPassword" type="password" autoComplete="new-password" minLength={12} required /></label>
+        <button className="primary" disabled={savingPassword}>Uložit heslo</button>
+        <button className="secondary" type="button" onClick={()=>setPasswordSetup(false)}>Zavřít</button>
+      </form>
+      <p role="status">{passwordMessage}</p>
+    </section></div>}
   </>;
   return <main style={{maxWidth:580,margin:'4rem auto'}}>
     <section className="card">
