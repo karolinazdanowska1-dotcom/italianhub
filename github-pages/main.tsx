@@ -37,13 +37,12 @@ function App() {
     return ()=>{cleanup();setReady(false);};
   },[local,client,userId]);
   if(ready && (local||userId)) return <>
-    <div style={{position:'fixed',bottom:12,right:16,zIndex:19}}>
-      {!local&&<button className="secondary" onClick={()=>{setPasswordMessage('');setPasswordSetup(!passwordSetup);}}>Nastavit heslo</button>}
-      <button className="secondary" onClick={()=>{if(local){setReady(false);setLocal(false);}else void client?.auth.signOut();}}>
+    <Lab cloud={!local} accountActions={closeSettings=><>
+      {!local&&<button className="secondary" onClick={()=>{closeSettings();setPasswordMessage('');setPasswordSetup(true);}}>Nastavit heslo</button>}
+      <button className="secondary" onClick={()=>{closeSettings();if(local){setReady(false);setLocal(false);}else void client?.auth.signOut();}}>
         {local?'Připojit cloudové ukládání':'Odhlásit se ze Supabase'}
       </button>
-    </div>
-    <Lab cloud={!local}/>
+    </>}/>
     {!local&&passwordSetup&&<div className="modalBackdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="Nastavit heslo">
       <h2>Nastavit heslo k ITALIAN LAB</h2>
       <p>Pro příští přihlášení použij svůj e-mail a toto heslo. Zvol alespoň 12 znaků.</p>
