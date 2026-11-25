@@ -1,5 +1,10 @@
 export type Example = { it: string; cs: string; note?: string };
 export const phraseExamples: Record<string, Example[]> = {
+  'Me la cavo.': [
+    {it:'Con l’italiano me la cavo abbastanza bene.',cs:'Italština mi jde docela dobře.',note:'Přítomný čas · jak ti něco jde'},
+    {it:'Ieri me la sono cavata bene al colloquio.',cs:'Včera jsem pohovor zvládla dobře.',note:'Passato prossimo · jak sis poradila'},
+    {it:'Se dovessi partire da sola, me la caverei.',cs:'Kdybych měla vyrazit sama, poradila bych si.',note:'Condizionale · hypotetická situace'}
+  ],
   'A dire il vero…': [
     {it:'A dire il vero, preferisco i posti tranquilli.',cs:'Popravdě dávám přednost klidným místům.',note:'Přítomnost · vyjádření preference'},
     {it:'A dire il vero, ieri non avevo molta voglia di uscire.',cs:'Popravdě se mi včera moc nechtělo ven.',note:'Imperfetto · nálada v minulosti'},
