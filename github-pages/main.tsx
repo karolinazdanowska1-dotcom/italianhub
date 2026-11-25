@@ -57,14 +57,16 @@ function App() {
         <button className="primary">Připojit projekt</button>
       </form>:<form onSubmit={async e=>{
         e.preventDefault();
-        const email=String(new FormData(e.currentTarget).get('email'));
+        const fields=new FormData(e.currentTarget);
+        const email=String(fields.get('email')).trim(), password=String(fields.get('password'));
         try{
-          const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
-          setMessage(error?error.message:'Otevři přihlašovací odkaz, který ti přijde e-mailem.');
+          const {error}=await client.auth.signInWithPassword({email,password});
+          setMessage(error?(error.code==='invalid_credentials'?'E-mail nebo heslo nesouhlasí.':error.code==='email_not_confirmed'?'Účet musí nejprve aktivovat správce.':'Přihlášení se nezdařilo. Zkus to znovu.'):'');
         }catch(error){setMessage((error as Error).message);}
       }}>
-        <label>E-mail<input className="answerInput" type="email" name="email" required /></label>
-        <button className="primary">Poslat přihlašovací odkaz</button>
+        <label>E-mail<input className="answerInput" type="email" name="email" autoComplete="username" required /></label>
+        <label>Heslo<input className="answerInput" type="password" name="password" autoComplete="current-password" required /></label>
+        <button className="primary">Přihlásit se</button>
         <button className="textButton" type="button" onClick={()=>{localStorage.removeItem(configKey);setClient(null);setMessage('');}}>Změnit projekt</button>
       </form>}
       <p role="status">{message}</p>
